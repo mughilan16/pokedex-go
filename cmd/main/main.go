@@ -24,6 +24,11 @@ func main() {
 			description: "Exit the Pokedex",
 			callback:    commandExit,
 		},
+		"map": {
+			name:        "map",
+			description: "Display location areas in pokemon",
+			callback:    commandMap,
+		},
 	}
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
