@@ -3,8 +3,8 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"os"
+	"strings"
 
 	"github.com/mughilan16/pokedex-go/internal/api"
 )
@@ -17,6 +17,7 @@ type CliCommand struct {
 
 var locationOffset = -20
 var locationCount = 850
+var args []string
 
 func getCommands() map[string]CliCommand {
 	return map[string]CliCommand{
@@ -40,6 +41,11 @@ func getCommands() map[string]CliCommand {
 			description: "Display previous location page areas in pokemon",
 			callback:    commandMapB,
 		},
+		"explore": {
+			name:        "explore",
+			description: "take a area and display the pokemon found in a area",
+			callback:    commandExplore,
+		},
 	}
 }
 
@@ -49,12 +55,14 @@ func main() {
 	for {
 		fmt.Printf("\npokedex > ")
 		scanner.Scan()
-		input := scanner.Text()
-		command, ok := commands[input]
+		input := strings.Split(scanner.Text(), " ")
+		command, ok := commands[input[0]]
+		args = input[1:]
 		if ok {
 			err := command.callback()
 			if err != nil {
-				log.Fatalln(err)
+				fmt.Println(err)
+				continue
 			}
 		} else {
 			fmt.Println("Invalid commands!! use \"help\" to see the available commands")
@@ -112,6 +120,18 @@ func commandMapB() error {
 	locationCount = list.Count
 	for i, place := range list.Results {
 		fmt.Printf("%d. %s\n", locationOffset+i+1, place.Name)
+	}
+	return nil
+}
+
+func commandExplore() error {
+	data, err := api.FetchExplore(args)
+	if err != nil {
+		return err
+	}
+	for i, pokemon := range data.PokemonEncounters {
+		fmt.Printf("%d. %s\n", i+1, pokemon.Pokemon.Name)
+		//fmt.Println(pokemon.VersionDetails)
 	}
 	return nil
 }

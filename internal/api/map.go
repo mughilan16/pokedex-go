@@ -29,13 +29,16 @@ func FetchLocation(offset int) (locationList, error) {
 		return locationList{}, err
 	}
 
-	body, err := ioutil.ReadAll(res.Body)
+	data, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return locationList{}, err
 	}
+	return parseLocation(data)
+}
 
+func parseLocation(data []byte) (locationList, error) {
 	list := locationList{}
-	err = json.Unmarshal(body, &list)
+	err := json.Unmarshal(data, &list)
 	if err != nil {
 		return locationList{}, err
 	}
